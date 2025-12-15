@@ -50,6 +50,12 @@ html, body, [class*="css"] {
     color: var(--text);
 }
 .block-container { padding: 2rem 2.5rem 3rem 2.5rem !important; max-width: 1200px; }
+.full-width-tabs {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding: 0 2.5rem;
+    box-sizing: border-box;
+}
 .main-header {
     text-align: center;
     padding: 2.5rem 0 1.5rem 0;
@@ -189,6 +195,20 @@ html, body, [class*="css"] {
 }
 .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
 @keyframes fadeIn { to { opacity: 1; } }
+
+/* Style native Streamlit file uploader to fill width and match theme */
+.stFileUploader > label {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+}
+.stFileUploader > div {
+    border: 2px dashed rgba(255,255,255,0.18);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 1.75rem 1.5rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -236,15 +256,13 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # File uploader with drop box styling
-    st.markdown("""
-    <div class="drop-box fade-in">
-        <div class="drop-box-icon">📁</div>
-        <div class="drop-box-title">Drop your image here or click to browse</div>
-        <div class="drop-box-hint">Supports JPG, JPEG, PNG</div>
-    </div>
-    """, unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("Upload image", type=['jpg', 'jpeg', 'png'], label_visibility="collapsed")
+    # File uploader (styled via CSS above)
+    uploaded_file = st.file_uploader(
+        "Upload a vehicle image to detect and read the plate",
+        type=['jpg', 'jpeg', 'png'],
+        help="Drag and drop or click to browse (JPG, JPEG, PNG)",
+        label_visibility="visible"
+    )
     
     if uploaded_file is not None:
         # Load image
@@ -313,6 +331,7 @@ def main():
                         st.markdown('<div class="section-title">Pipeline Stages</div>', unsafe_allow_html=True)
                         stages = result['stages']
 
+                        st.markdown('<div class="full-width-tabs">', unsafe_allow_html=True)
                         tabs = st.tabs(["Preprocess", "Plate Detection", "Enhancement", "OCR", "Post-Process"])
 
                         with tabs[0]:
@@ -363,6 +382,8 @@ def main():
                             st.markdown(f"**Normalized:** {'Yes' if post_meta['normalized'] else 'No'}")
                             if 'canonical_text' in post_meta:
                                 st.markdown(f"**Canonical (Western digits):** `{post_meta['canonical_text']}`")
+
+                        st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Technical metadata
                     if show_metadata:

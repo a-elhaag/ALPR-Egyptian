@@ -96,9 +96,14 @@ def normalize_characters(text: str) -> str:
     """
     # First convert Arabic-Hindi numerals to Western
     text = convert_arabic_hindi_numerals(text)
-    
+
     normalized = []
     for char in text:
+        # Map common OCR confusion: latin O/o to zero
+        if char in {'O', 'o'}:
+            normalized.append('0')
+            continue
+
         # Convert common Latin misreads to Arabic if English is not allowed
         if not config.OCR_ALLOW_ENGLISH and char in config.LATIN_TO_ARABIC_FALLBACK:
             normalized.append(config.LATIN_TO_ARABIC_FALLBACK[char])
@@ -201,10 +206,15 @@ def validate_egyptian_format(text: str) -> Tuple[bool, Optional[str]]:
 
 def apply_format_rules(text: str) -> Tuple[str, dict]:
     """
-    Apply Egyptian plate rules (normalization removed).
-    Steps: remove invalid characters, validate format, format output.
+    Apply Egyptian plate rules with light normalization focused on digits.
+    Steps: normalize numerals/obvious confusions, remove invalid chars,
+    validate format, format output, display with Arabic-Hindi digits.
     """
-    filtered = remove_invalid_chars(text)
+    # Normalize numerals and obvious digit/letter confusions
+    normalized = normalize_characters(text)
+
+    # Remove invalid characters
+    filtered = remove_invalid_chars(normalized)
     letters, digits = extract_components(filtered)
 
     if letters and digits:
@@ -214,12 +224,12 @@ def apply_format_rules(text: str) -> Tuple[str, dict]:
 
     is_valid, format_desc = validate_egyptian_format(formatted)
 
-    # Create display form with Arabic-Hindi numerals for UI
+    # Display Arabic-Hindi numerals for UI clarity
     display_formatted = convert_western_to_arabic_hindi(formatted)
 
     metadata = {
         'original_text': text,
-        'normalized_text': text,
+        'normalized_text': normalized,
         'filtered_text': filtered,
         'letters': letters,
         'digits': digits,
@@ -227,7 +237,7 @@ def apply_format_rules(text: str) -> Tuple[str, dict]:
         'digit_count': len(digits),
         'valid_format': is_valid,
         'format_description': format_desc,
-        'normalized': False
+        'normalized': normalized != text
     }
 
     return display_formatted, metadata
