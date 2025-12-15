@@ -6,17 +6,18 @@ A production-grade ALPR system with step-by-step visualization
 and confidence-aware results.
 """
 
-import streamlit as st
-import cv2
-import numpy as np
-from PIL import Image
 import io
 
+import cv2
+import numpy as np
+import streamlit as st
+from PIL import Image
+
+import config
 # Import pipeline
 from pipeline.pipeline import create_pipeline
-from utils.visualization import draw_bbox, create_confidence_bar, get_confidence_color
-import config
-
+from utils.visualization import (create_confidence_bar, draw_bbox,
+                                 get_confidence_color)
 
 # Page configuration
 st.set_page_config(
@@ -253,7 +254,7 @@ def main():
                                 st.image(cv2.cvtColor(stages['enhanced_plate'], cv2.COLOR_BGR2RGB), use_container_width=True)
                         
                         # Stage 4: OCR
-                        with st.expander("4️⃣ OCR (EasyOCR - Arabic + English)", expanded=False):
+                        with st.expander("4️⃣ OCR (PaddleOCR - Arabic)", expanded=False):
                             st.markdown(f"**OCR Confidence:** {ocr_conf:.1%}")
                             st.markdown(f"**Raw Text:** `{result['metadata']['ocr']['raw_text']}`")
                             st.markdown(f"**Processed Text:** `{result['plate_text']}`")
