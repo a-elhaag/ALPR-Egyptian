@@ -105,6 +105,17 @@ def normalize_lighting(image: np.ndarray) -> np.ndarray:
     return normalized
 
 
+def to_grayscale_bgr(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image to grayscale and back to 3-channel BGR
+    
+    Keeps shape compatible with downstream models while enforcing
+    single-channel content for more consistent contrast handling.
+    """
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+
+
 def preprocess_pipeline(image: np.ndarray) -> Tuple[np.ndarray, dict]:
     """
     Complete preprocessing pipeline
@@ -129,6 +140,10 @@ def preprocess_pipeline(image: np.ndarray) -> Tuple[np.ndarray, dict]:
     
     # Step 2: Denoise
     denoised = denoise_image(resized)
+
+    # Optional: Grayscale conversion (keeps 3-channel)
+    if config.PREPROCESS_FORCE_GRAYSCALE:
+        denoised = to_grayscale_bgr(denoised)
     
     # Step 3: Normalize lighting
     normalized = normalize_lighting(denoised)
@@ -137,7 +152,8 @@ def preprocess_pipeline(image: np.ndarray) -> Tuple[np.ndarray, dict]:
     metadata = {
         'original_size': (original_width, original_height),
         'processed_size': (normalized.shape[1], normalized.shape[0]),
-        'resize_applied': (original_height != normalized.shape[0]) or (original_width != normalized.shape[1])
+        'resize_applied': (original_height != normalized.shape[0]) or (original_width != normalized.shape[1]),
+        'grayscale_applied': config.PREPROCESS_FORCE_GRAYSCALE
     }
     
     return normalized, metadata

@@ -18,6 +18,33 @@ import numpy as np
 import config
 
 
+def crop_header_band(plate_image: np.ndarray, header_ratio: float = 0.25) -> np.ndarray:
+    """
+    Crop out the colored header band from Egyptian plates.
+    
+    Egyptian plates have a colored header band (blue/orange) at the top
+    with "EGYPT" / "مصر" text that confuses OCR. This function removes it.
+    
+    Args:
+        plate_image: Full plate crop including header
+        header_ratio: Portion of plate height to crop (default 25%)
+        
+    Returns:
+        Plate image with header removed (main text area only)
+    """
+    h, w = plate_image.shape[:2]
+    
+    # Crop out top portion (header band)
+    crop_y = int(h * header_ratio)
+    cropped = plate_image[crop_y:, :]
+    
+    # Safety: ensure we have enough image left
+    if cropped.shape[0] < 20:
+        return plate_image  # Return original if crop is too aggressive
+    
+    return cropped
+
+
 def resize_plate(
     plate_image: np.ndarray,
     target_height: int = config.PLATE_TARGET_HEIGHT,
@@ -259,11 +286,12 @@ def enhance_pipeline(plate_image: np.ndarray) -> Tuple[np.ndarray, dict]:
     Complete plate enhancement pipeline
     
     Applies enhancements in optimal order:
-    1. Resize to standard size
-    2. Deskew (correct rotation)
-    3. Denoise
-    4. Enhance contrast
-    5. Sharpen edges
+    1. Crop header band (remove "EGYPT" / "مصر" portion)
+    2. Resize to standard size
+    3. Deskew (correct rotation)
+    4. Denoise
+    5. Enhance contrast
+    6. Sharpen edges
     
     Args:
         plate_image: Cropped plate image from detector
@@ -274,8 +302,11 @@ def enhance_pipeline(plate_image: np.ndarray) -> Tuple[np.ndarray, dict]:
     # Store original size
     original_height, original_width = plate_image.shape[:2]
     
+    # Step 0: Crop header band (remove colored header with "EGYPT"/"مصر")
+    header_cropped = crop_header_band(plate_image)
+    
     # Step 1: Resize to optimal OCR size
-    resized = resize_plate(plate_image)
+    resized = resize_plate(header_cropped)
     
     # Step 2: Deskew (correct rotation)
     deskewed = deskew_plate(resized)
@@ -294,6 +325,7 @@ def enhance_pipeline(plate_image: np.ndarray) -> Tuple[np.ndarray, dict]:
         'original_size': (original_width, original_height),
         'enhanced_size': (sharpened.shape[1], sharpened.shape[0]),
         'upscaled': original_height < config.PLATE_TARGET_HEIGHT,
+        'header_cropped': True,
         'deskewed': True,
         'denoised': True
     }

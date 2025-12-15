@@ -17,6 +17,7 @@ import numpy as np
 from ultralytics import YOLO
 
 import config
+from pipeline import postprocess
 
 # Optional imports (PaddleOCR, EasyOCR)
 try:
@@ -203,11 +204,34 @@ class OCREngine:
 
     @staticmethod
     def _filter_allowlist(text: str) -> str:
-        """Keep only allowed characters to drop banner noise"""
+        """
+        Keep only allowed characters and convert Latin misreads to Arabic.
+        
+        Steps:
+        1. Convert Arabic-Hindi numerals to Western
+        2. Map common Latin misreads to Arabic letters (if English not allowed)
+        3. Filter to allowlist
+        """
+        result = []
         allowed = set(config.EGYPTIAN_ARABIC_LETTERS) | set(config.EGYPTIAN_DIGITS) | set(config.ARABIC_HINDI_TO_WESTERN.keys())
         if config.OCR_ALLOW_ENGLISH:
             allowed |= set(config.EGYPTIAN_ENGLISH_LETTERS)
-        return ''.join(ch for ch in text if ch in allowed)
+        
+        for ch in text:
+            # Convert Arabic-Hindi numerals
+            if ch in config.ARABIC_HINDI_TO_WESTERN:
+                result.append(config.ARABIC_HINDI_TO_WESTERN[ch])
+            # Map Latin misreads to Arabic (when English disabled)
+            elif not config.OCR_ALLOW_ENGLISH and ch in config.LATIN_TO_ARABIC_FALLBACK:
+                result.append(config.LATIN_TO_ARABIC_FALLBACK[ch])
+            # Keep if in allowlist
+            elif ch in allowed:
+                result.append(ch)
+            # Drop digits that are already Western
+            elif ch.isdigit():
+                result.append(ch)
+        
+        return ''.join(result)
         
     def initialize_reader(self) -> bool:
         """
@@ -309,8 +333,11 @@ class OCREngine:
         """
         if not self.use_yolo_ocr:
             return "", 0.0, []
-            
-        return self.yolo_detector.get_plate_text(plate_image)
+
+        text, conf, details = self.yolo_detector.get_plate_text(plate_image)
+        if text:
+            text = self._filter_allowlist(text)
+        return text, conf, details
     
     def recognize_with_fallback(
         self,
@@ -352,6 +379,14 @@ class OCREngine:
                 results.append(('paddle', text_p, conf_p, details_p))
                 if conf_p > 0.8:
                     return text_p, conf_p, details_p
+            # Try Paddle on binary plate if available
+            if binary_plate is not None:
+                text_pb, conf_pb, details_pb = self.paddle_engine.recognize(binary_plate)
+                if text_pb:
+                    text_pb = self._filter_allowlist(text_pb)
+                    results.append(('paddle_binary', text_pb, conf_pb, details_pb))
+                    if conf_pb > 0.8:
+                        return text_pb, conf_pb, details_pb
         
         # Attempt 3: EasyOCR on enhanced plate
         if self.reader is not None:
@@ -368,11 +403,22 @@ class OCREngine:
         # Select best result
         if not results:
             return "", 0.0, []
-        
-        # Sort by confidence and return best
-        results.sort(key=lambda x: x[2], reverse=True)
+
+        def result_score(entry: Tuple[str, str, float, List[dict]]) -> float:
+            """Score results with bias toward valid Egyptian format and presence of letters+digits."""
+            _, text_val, conf_val, _ = entry
+            is_valid, _ = postprocess.validate_egyptian_format(text_val)
+            letters, digits = postprocess.extract_components(text_val)
+            bonus = 0.0
+            if is_valid:
+                bonus += 0.1
+            if letters and digits:
+                bonus += 0.05
+            return conf_val + bonus
+
+        results.sort(key=result_score, reverse=True)
         best = results[0]
-        
+
         return best[1], best[2], best[3]
 
 

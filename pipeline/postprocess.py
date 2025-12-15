@@ -60,6 +60,22 @@ def convert_arabic_hindi_numerals(text: str) -> str:
     return ''.join(result)
 
 
+def convert_western_to_arabic_hindi(text: str) -> str:
+    """
+    Convert Western numerals (0123456789) to Arabic-Hindi (٠١٢٣٤٥٦٧٨٩)
+    
+    Used for display so the UI shows native numerals while internal
+    validation stays in Western digits.
+    """
+    result = []
+    for char in text:
+        if char in config.WESTERN_TO_ARABIC_HINDI:
+            result.append(config.WESTERN_TO_ARABIC_HINDI[char])
+        else:
+            result.append(char)
+    return ''.join(result)
+
+
 def normalize_characters(text: str) -> str:
     """
     Fix common OCR character confusions and normalize numerals
@@ -83,6 +99,11 @@ def normalize_characters(text: str) -> str:
     
     normalized = []
     for char in text:
+        # Convert common Latin misreads to Arabic if English is not allowed
+        if not config.OCR_ALLOW_ENGLISH and char in config.LATIN_TO_ARABIC_FALLBACK:
+            normalized.append(config.LATIN_TO_ARABIC_FALLBACK[char])
+            continue
+
         # Apply normalization map
         if char in config.CHAR_NORMALIZATION_MAP:
             normalized.append(config.CHAR_NORMALIZATION_MAP[char])
@@ -115,7 +136,7 @@ def remove_invalid_chars(text: str) -> str:
             char in ' -'):
             valid_chars.append(char)
         # Optionally keep English letters for special plates
-        elif is_english_char(char):
+        elif config.OCR_ALLOW_ENGLISH and is_english_char(char):
             valid_chars.append(char)
     
     return ''.join(valid_chars)
@@ -210,6 +231,9 @@ def apply_format_rules(text: str) -> Tuple[str, dict]:
         formatted = f"{letters} {digits}"
     else:
         formatted = filtered
+
+    # Create display form with Arabic-Hindi numerals for UI
+    display_formatted = convert_western_to_arabic_hindi(formatted)
     
     # Metadata
     metadata = {
@@ -219,10 +243,11 @@ def apply_format_rules(text: str) -> Tuple[str, dict]:
         'valid_format': is_valid,
         'format_description': format_desc,
         'letter_count': len(letters),
-        'digit_count': len(digits)
+        'digit_count': len(digits),
+        'canonical_text': formatted  # Western digits for downstream checks
     }
     
-    return formatted, metadata
+    return display_formatted, metadata
 
 
 def assess_plate_quality(

@@ -22,12 +22,24 @@ YOLO_IOU_THRESHOLD = 0.45         # IoU threshold for NMS
 YOLO_IMAGE_SIZE = 640             # Input size for YOLO
 
 # OCR Parameters
-OCR_LANGUAGES = ['ar', 'en']      # Arabic and English
+# Keep OCR focused on Arabic to avoid Latin hallucinations on Arabic plates.
+OCR_LANGUAGES = ['ar']
 OCR_GPU = False                   # Use CPU (M3 will use MPS automatically)
 OCR_BATCH_SIZE = 1                # Process one image at a time
 OCR_USE_PADDLE = True             # Enable PaddleOCR primary engine
 OCR_PADDLE_USE_ANGLE = False      # Disable angle classifier for speed
 OCR_ALLOW_ENGLISH = False         # Exclude English letters from OCR allowlist by default
+# Map common Latin misreads to closest Arabic plate letters when English is disallowed
+LATIN_TO_ARABIC_FALLBACK = {
+    'y': 'ى', 'Y': 'ى',
+    'w': 'و', 'W': 'و',
+    'n': 'ن', 'N': 'ن',
+    'g': 'ج', 'G': 'ج',
+    'j': 'ج', 'J': 'ج',
+    'h': 'ح', 'H': 'ح',
+    's': 'س', 'S': 'س',
+    't': 'ت', 'T': 'ت',
+}
 
 # ============================================================================
 # IMAGE PROCESSING PARAMETERS
@@ -37,6 +49,7 @@ MAX_IMAGE_DIMENSION = 1280        # Resize large images to this max dimension
 DENOISE_DIAMETER = 9              # Bilateral filter diameter
 DENOISE_SIGMA_COLOR = 75          # Bilateral filter sigma color
 DENOISE_SIGMA_SPACE = 75          # Bilateral filter sigma space
+PREPROCESS_FORCE_GRAYSCALE = True # Convert to grayscale (keeps 3-channel BGR) for consistent contrast
 CLAHE_CLIP_LIMIT = 2.0            # CLAHE clip limit
 CLAHE_GRID_SIZE = (8, 8)          # CLAHE tile grid size
 
