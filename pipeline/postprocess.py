@@ -201,52 +201,35 @@ def validate_egyptian_format(text: str) -> Tuple[bool, Optional[str]]:
 
 def apply_format_rules(text: str) -> Tuple[str, dict]:
     """
-    Apply all Egyptian plate rules and formatting
-    
-    Complete post-processing pipeline:
-    1. Normalize character confusions
-    2. Remove invalid characters
-    3. Validate format
-    4. Format output
-    
-    Args:
-        text: Raw OCR output
-        
-    Returns:
-        Tuple of (processed_text, metadata)
-        metadata contains validation info
+    Apply Egyptian plate rules (normalization removed).
+    Steps: remove invalid characters, validate format, format output.
     """
-    # Step 1: Normalize characters
-    normalized = normalize_characters(text)
-    
-    # Step 2: Remove invalid characters
-    filtered = remove_invalid_chars(normalized)
-    
-    # Step 3: Validate format
-    is_valid, format_desc = validate_egyptian_format(filtered)
-    
-    # Step 4: Format output (add space between letters and digits)
+    filtered = remove_invalid_chars(text)
     letters, digits = extract_components(filtered)
+
     if letters and digits:
         formatted = f"{letters} {digits}"
     else:
-        formatted = filtered
+        formatted = filtered.strip()
+
+    is_valid, format_desc = validate_egyptian_format(formatted)
 
     # Create display form with Arabic-Hindi numerals for UI
     display_formatted = convert_western_to_arabic_hindi(formatted)
-    
-    # Metadata
+
     metadata = {
         'original_text': text,
-        'normalized': normalized != text,
-        'filtered': filtered != normalized,
-        'valid_format': is_valid,
-        'format_description': format_desc,
+        'normalized_text': text,
+        'filtered_text': filtered,
+        'letters': letters,
+        'digits': digits,
         'letter_count': len(letters),
         'digit_count': len(digits),
-        'canonical_text': formatted  # Western digits for downstream checks
+        'valid_format': is_valid,
+        'format_description': format_desc,
+        'normalized': False
     }
-    
+
     return display_formatted, metadata
 
 
@@ -254,38 +237,22 @@ def assess_plate_quality(
     text: str,
     ocr_confidence: float,
     format_valid: bool
-) -> Tuple[str, float]:
+):
     """
-    Assess overall plate recognition quality
-    
-    Combines multiple factors:
-    - OCR confidence
-    - Format validity
-    - Text length
-    
-    Returns adjusted confidence and quality assessment.
-    
-    Args:
-        text: Recognized text
-        ocr_confidence: Raw OCR confidence
-        format_valid: Whether format matches Egyptian patterns
-        
-    Returns:
-        Tuple of (quality_message, adjusted_confidence)
+    Combine OCR confidence and format validity into a quality message
+    and adjusted confidence score.
     """
-    # Penalize invalid formats
     if not format_valid:
         adjusted_confidence = ocr_confidence * 0.7
         quality = "Non-standard format"
     else:
         adjusted_confidence = ocr_confidence
         quality = "Valid format"
-    
-    # Penalize very short text (likely incomplete)
+
     if len(text.replace(' ', '')) < 5:
         adjusted_confidence *= 0.8
         quality += ", possibly incomplete"
-    
+
     return quality, adjusted_confidence
 
 

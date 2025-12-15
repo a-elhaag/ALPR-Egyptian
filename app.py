@@ -27,52 +27,168 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Clean modern UI skin
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    .sub-header {
-        font-size: 1.2rem;
-        color: #666;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .stage-header {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-    .result-box {
-        padding: 2rem;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        text-align: center;
-        margin: 2rem 0;
-    }
-    .result-text {
-        font-size: 3rem;
-        font-weight: bold;
-        letter-spacing: 0.5rem;
-        margin: 1rem 0;
-    }
-    .confidence-high {
-        color: #00ff00;
-    }
-    .confidence-medium {
-        color: #ffa500;
-    }
-    .confidence-low {
-        color: #ff0000;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root {
+    --bg: #0f172a;          /* Dark blue background */
+    --card: #1e293b;        /* Slightly lighter blue for cards */
+    --panel: #334155;       /* Panel color */
+    --border: rgba(255,255,255,0.1);
+    --text: #ffffff;        /* White text */
+    --muted: #94a3b8;       /* Muted text color */
+    --accent: #60a5fa;      /* Light blue accent */
+    --accent-hover: #93c5fd;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+.block-container { padding: 2rem 2.5rem 3rem 2.5rem !important; max-width: 1200px; }
+.main-header {
+    text-align: center;
+    padding: 2.5rem 0 1.5rem 0;
+}
+.main-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+.main-header p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 0;
+}
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+}
+.drop-box {
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+.drop-box:hover {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.05);
+}
+.drop-box-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+}
+.drop-box-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+.drop-box-hint {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.result-card {
+    background: linear-gradient(145deg, #1e3a5f 0%, #0f172a 100%);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin: 1.5rem 0;
+}
+.result-label {
+    color: var(--text);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+.result-text {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 0.4rem;
+    margin: 0.5rem 0;
+    color: var(--text);
+}
+.result-status {
+    color: var(--text);
+    font-size: 0.95rem;
+    margin-top: 0.75rem;
+}
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+@media (max-width: 768px) {
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.metric-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    text-align: center;
+    color: var(--text);
+}
+.metric-label {
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+}
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 1.5rem 0 0.75rem 0;
+}
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+}
+.tips-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+}
+.tips-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+.tips-card ul {
+    color: var(--muted);
+    padding-left: 1.25rem;
+    margin: 0;
+    line-height: 1.8;
+}
+.fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+@keyframes fadeIn { to { opacity: 1; } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,58 +204,47 @@ def load_pipeline():
 def main():
     """Main application"""
     
-    # Header
-    st.markdown('<div class="main-header">🚗 Egyptian License Plate Recognition System</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Production-Grade Multi-Stage ALPR with Interpretability</div>', unsafe_allow_html=True)
-    
-    # Sidebar
+    # Sidebar controls
     with st.sidebar:
-        st.header("ℹ️ About")
-        st.markdown("""
-        This system recognizes Egyptian license plates through a sophisticated multi-stage pipeline:
-        
-        **Pipeline Stages:**
-        1. 🔧 Preprocessing (denoising, lighting normalization)
-        2. 🎯 Plate Detection (YOLOv11)
-        3. ✨ Plate Enhancement (contrast, sharpening)
-        4. 📝 OCR (Arabic + English)
-        5. ✅ Post-Processing (Egyptian plate rules)
-        
-        **Key Features:**
-        - Confidence-aware results
-        - Step-by-step visualization
-        - Domain-specific validation
-        """)
-        
-        st.header("⚙️ Settings")
+        st.markdown("### Control Panel")
+        st.markdown("Fine-tune what you see while keeping the heavy lifting in the main canvas.")
         show_all_stages = st.checkbox("Show All Pipeline Stages", value=True)
         show_metadata = st.checkbox("Show Technical Metadata", value=False)
+        st.markdown("---")
+        st.markdown("**Pipeline**")
+        st.markdown("- YOLOv11 for plates\n- PaddleOCR (Arabic)\n- Domain rules for Egypt\n- Confidence fusion")
     
     # Initialize pipeline
     try:
         pipeline = load_pipeline()
         
         if pipeline is None:
-            st.error("❌ Failed to initialize ALPR pipeline. Please check that the YOLO model file exists.")
+            st.error("Failed to initialize ALPR pipeline. Please check that the YOLO model file exists.")
             st.info(f"Expected model path: `{config.YOLO_MODEL_PATH}`")
             return
         
-        st.success("✅ ALPR pipeline initialized successfully")
-        
     except Exception as e:
-        st.error(f"❌ Error initializing pipeline: {str(e)}")
+        st.error(f"Error initializing pipeline: {str(e)}")
         st.info("Please ensure all dependencies are installed and the YOLO model file is available.")
         return
+
+    # Header
+    st.markdown("""
+    <div class="main-header fade-in">
+        <h1>Egyptian License Plate Recognition</h1>
+        <p>Upload a vehicle image to detect and read the plate</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # File uploader
-    st.markdown("---")
-    st.header("📤 Upload Image")
-    
-    uploaded_file = st.file_uploader(
-        "Choose an image containing a vehicle with Egyptian license plate",
-        type=['jpg', 'jpeg', 'png'],
-        help="Supported formats: JPG, JPEG, PNG"
-    )
+    # File uploader with drop box styling
+    st.markdown("""
+    <div class="drop-box fade-in">
+        <div class="drop-box-icon">📁</div>
+        <div class="drop-box-title">Drop your image here or click to browse</div>
+        <div class="drop-box-hint">Supports JPG, JPEG, PNG</div>
+    </div>
+    """, unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload image", type=['jpg', 'jpeg', 'png'], label_visibility="collapsed")
     
     if uploaded_file is not None:
         # Load image
@@ -147,85 +252,81 @@ def main():
         image = Image.open(io.BytesIO(image_bytes))
         image_np = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
-        # Display original image
-        col1, col2 = st.columns([1, 1])
+        # Workspace
+        col1, col2 = st.columns([1.05, 1])
         with col1:
-            st.markdown('<div class="stage-header">📷 Original Image</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">Input Preview</div>', unsafe_allow_html=True)
             st.image(image, use_container_width=True)
         
-        # Process button
         with col2:
-            st.markdown('<div class="stage-header">⚡ Processing</div>', unsafe_allow_html=True)
-            
-            if st.button("🚀 Recognize License Plate", type="primary", use_container_width=True):
-                # Process image
+            st.markdown('<div class="section-title">Recognition</div>', unsafe_allow_html=True)
+            if st.button("Run Recognition", type="primary", use_container_width=True):
                 with st.spinner("Processing image through pipeline..."):
                     result = pipeline.process_image(image_np)
                 
-                # Display results
-                st.markdown("---")
+                st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
                 
                 if result['success']:
-                    # Main result display
-                    confidence_level = 'high' if result['confidence'] >= config.HIGH_CONFIDENCE_THRESHOLD else 'medium' if result['confidence'] >= config.MEDIUM_CONFIDENCE_THRESHOLD else 'low'
+                    detection_conf = result['metadata']['plate_detection']['confidence']
+                    ocr_conf = result['metadata']['ocr']['confidence']
+                    status_clean = result['status_message'].replace('✓', '').replace('⚠', '').replace('✗', '').strip()
                     
                     st.markdown(f"""
-                    <div class="result-box">
-                        <div style="font-size: 1.5rem;">Recognized Plate Number</div>
+                    <div class="result-card fade-in">
+                        <div class="result-label">Recognized Plate</div>
                         <div class="result-text">{result['plate_text']}</div>
-                        <div style="font-size: 1.2rem; margin-top: 1rem;">
-                            {result['status_message']}
-                        </div>
+                        <div class="result-status">{status_clean}</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Confidence display
-                    st.markdown('<div class="stage-header">📊 Confidence Analysis</div>', unsafe_allow_html=True)
-                    
-                    conf_col1, conf_col2, conf_col3 = st.columns(3)
-                    
-                    with conf_col1:
-                        st.metric("Overall Confidence", f"{result['confidence']:.1%}")
-                    
-                    with conf_col2:
-                        detection_conf = result['metadata']['plate_detection']['confidence']
-                        st.metric("Detection Confidence", f"{detection_conf:.1%}")
-                    
-                    with conf_col3:
-                        ocr_conf = result['metadata']['ocr']['confidence']
-                        st.metric("OCR Confidence", f"{ocr_conf:.1%}")
-                    
+                    # Confidence metrics
+                    st.markdown('<div class="section-title">Performance Metrics</div>', unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Overall</div>
+                            <div class="metric-value">{result['confidence']*100:.0f}%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Detection</div>
+                            <div class="metric-value">{detection_conf*100:.0f}%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">OCR</div>
+                            <div class="metric-value">{ocr_conf*100:.0f}%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Latency</div>
+                            <div class="metric-value">{result['processing_time']:.2f}s</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
                     # Confidence bar
-                    conf_bar = create_confidence_bar(result['confidence'], width=800, height=50)
+                    conf_bar = create_confidence_bar(result['confidence'], width=900, height=42)
                     conf_bar_rgb = cv2.cvtColor(conf_bar, cv2.COLOR_BGR2RGB)
-                    st.image(conf_bar_rgb, use_container_width=True)
-                    
-                    # Processing time
-                    st.info(f"⏱️ Processing completed in {result['processing_time']:.2f} seconds")
+                    st.image(conf_bar_rgb, use_container_width=True, caption="Composite confidence")
                     
                     # Pipeline stages visualization
                     if show_all_stages:
-                        st.markdown("---")
-                        st.markdown('<div class="stage-header">🔍 Pipeline Stages</div>', unsafe_allow_html=True)
-                        
+                        st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+                        st.markdown('<div class="section-title">Pipeline Stages</div>', unsafe_allow_html=True)
                         stages = result['stages']
-                        
-                        # Stage 1: Preprocessing
-                        with st.expander("1️⃣ Preprocessing", expanded=False):
-                            st.markdown("**Applied:** Denoising, Lighting Normalization (CLAHE)")
-                            stage_col1, stage_col2 = st.columns(2)
-                            with stage_col1:
-                                st.markdown("**Original**")
+
+                        tabs = st.tabs(["Preprocess", "Plate Detection", "Enhancement", "OCR", "Post-Process"])
+
+                        with tabs[0]:
+                            st.markdown("**Denoise + Grayscale + CLAHE**")
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.markdown("Input")
                                 st.image(cv2.cvtColor(stages['original'], cv2.COLOR_BGR2RGB), use_container_width=True)
-                            with stage_col2:
-                                st.markdown("**Preprocessed**")
+                            with c2:
+                                st.markdown("Preprocessed")
                                 st.image(cv2.cvtColor(stages['preprocessed'], cv2.COLOR_BGR2RGB), use_container_width=True)
-                        
-                        # Stage 2: Plate Detection
-                        with st.expander("2️⃣ Plate Detection (YOLOv11)", expanded=True):
-                            st.markdown(f"**Detection Confidence:** {detection_conf:.1%}")
-                            
-                            # Draw bounding box on image
+
+                        with tabs[1]:
+                            st.markdown(f"**YOLOv11 detection** · {detection_conf:.1%}")
                             bbox = stages['plate_bbox']
                             img_with_bbox = draw_bbox(
                                 stages['vehicle_crop'],
@@ -233,84 +334,58 @@ def main():
                                 "License Plate",
                                 detection_conf
                             )
-                            
-                            det_col1, det_col2 = st.columns(2)
-                            with det_col1:
-                                st.markdown("**Detection Result**")
-                                st.image(cv2.cvtColor(img_with_bbox, cv2.COLOR_BGR2RGB), use_container_width=True)
-                            with det_col2:
-                                st.markdown("**Cropped Plate**")
-                                st.image(cv2.cvtColor(stages['plate_crop'], cv2.COLOR_BGR2RGB), use_container_width=True)
-                        
-                        # Stage 3: Plate Enhancement
-                        with st.expander("3️⃣ Plate Enhancement", expanded=False):
-                            st.markdown("**Applied:** Resize, Contrast Enhancement, Sharpening")
-                            enh_col1, enh_col2 = st.columns(2)
-                            with enh_col1:
-                                st.markdown("**Original Crop**")
-                                st.image(cv2.cvtColor(stages['plate_crop'], cv2.COLOR_BGR2RGB), use_container_width=True)
-                            with enh_col2:
-                                st.markdown("**Enhanced**")
-                                st.image(cv2.cvtColor(stages['enhanced_plate'], cv2.COLOR_BGR2RGB), use_container_width=True)
-                        
-                        # Stage 4: OCR
-                        with st.expander("4️⃣ OCR (PaddleOCR - Arabic)", expanded=False):
-                            st.markdown(f"**OCR Confidence:** {ocr_conf:.1%}")
-                            st.markdown(f"**Raw Text:** `{result['metadata']['ocr']['raw_text']}`")
-                            st.markdown(f"**Processed Text:** `{result['plate_text']}`")
-                        
-                        # Stage 5: Post-Processing
-                        with st.expander("5️⃣ Post-Processing (Egyptian Plate Rules)", expanded=False):
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.image(cv2.cvtColor(img_with_bbox, cv2.COLOR_BGR2RGB), use_container_width=True, caption="Detection overlay")
+                            with c2:
+                                st.image(cv2.cvtColor(stages['plate_crop'], cv2.COLOR_BGR2RGB), use_container_width=True, caption="Plate crop")
+
+                        with tabs[2]:
+                            st.markdown("**Resize · Deskew · Denoise · Contrast · Sharpen**")
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.image(cv2.cvtColor(stages['plate_crop'], cv2.COLOR_BGR2RGB), use_container_width=True, caption="Before")
+                            with c2:
+                                st.image(cv2.cvtColor(stages['enhanced_plate'], cv2.COLOR_BGR2RGB), use_container_width=True, caption="Enhanced")
+                            st.image(cv2.cvtColor(stages['binary_plate'], cv2.COLOR_BGR2RGB), use_container_width=True, caption="Binary variant")
+
+                        with tabs[3]:
+                            st.markdown(f"**PaddleOCR Arabic** · {ocr_conf:.1%}")
+                            st.markdown(f"`Raw:` `{result['metadata']['ocr']['raw_text']}`")
+                            st.markdown(f"`Processed:` `{result['plate_text']}`")
+
+                        with tabs[4]:
                             post_meta = result['metadata']['postprocessing']
-                            st.markdown(f"**Format Valid:** {'✅ Yes' if post_meta['valid_format'] else '❌ No'}")
+                            st.markdown(f"**Format Valid:** {'✅' if post_meta['valid_format'] else '❌'}")
                             if post_meta['format_description']:
                                 st.markdown(f"**Format:** {post_meta['format_description']}")
-                            st.markdown(f"**Letters:** {post_meta['letter_count']}")
-                            st.markdown(f"**Digits:** {post_meta['digit_count']}")
-                            st.markdown(f"**Normalization Applied:** {'Yes' if post_meta['normalized'] else 'No'}")
+                            st.markdown(f"**Letters:** {post_meta['letter_count']} · **Digits:** {post_meta['digit_count']}")
+                            st.markdown(f"**Normalized:** {'Yes' if post_meta['normalized'] else 'No'}")
+                            if 'canonical_text' in post_meta:
+                                st.markdown(f"**Canonical (Western digits):** `{post_meta['canonical_text']}`")
                     
                     # Technical metadata
                     if show_metadata:
-                        st.markdown("---")
-                        st.markdown('<div class="stage-header">🔧 Technical Metadata</div>', unsafe_allow_html=True)
+                        st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+                        st.markdown('<div class="section-title">Technical Metadata</div>', unsafe_allow_html=True)
                         st.json(result['metadata'])
                 
                 else:
-                    # Processing failed
-                    st.error(f"❌ {result['status_message']}")
+                    st.error(result['status_message'].replace('✓', '').replace('⚠', '').replace('✗', '').strip())
                     st.info("Try uploading a different image with a clearer view of the license plate.")
     
     else:
-        # No file uploaded
-        st.info("👆 Please upload an image to begin")
-        
-        # Example instructions
-        with st.expander("📋 Usage Instructions"):
-            st.markdown("""
-            ### How to Use
-            
-            1. **Upload an Image**: Click the upload button and select an image containing a vehicle with an Egyptian license plate
-            2. **Process**: Click the "Recognize License Plate" button
-            3. **View Results**: The system will display:
-               - Recognized plate number
-               - Confidence scores
-               - Step-by-step pipeline visualization
-            
-            ### Best Results
-            
-            For optimal recognition accuracy:
-            - ✅ Clear, well-lit images
-            - ✅ Plate is visible and not obscured
-            - ✅ Minimal motion blur
-            - ✅ Frontal or near-frontal view
-            
-            ### System Limitations
-            
-            - ⚠️ Requires YOLO model file to be present
-            - ⚠️ Processing time: 1-3 seconds per image (M3 optimized)
-            - ⚠️ Works best with standard Egyptian plate formats
-            - ⚠️ May struggle with heavily damaged or obscured plates
-            """)
+        st.markdown("""
+        <div class="tips-card fade-in">
+            <h3>Tips for best results</h3>
+            <ul>
+                <li>Plate fully visible, not occluded</li>
+                <li>Minimal motion blur</li>
+                <li>Near-frontal angle</li>
+                <li>Even lighting without glare</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":

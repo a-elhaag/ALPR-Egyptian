@@ -211,12 +211,13 @@ def get_confidence_color(confidence: float) -> Tuple[int, int, int]:
     Returns:
         BGR color tuple
     """
+    # Use blue tones instead of green/orange/red
     if confidence >= config.HIGH_CONFIDENCE_THRESHOLD:
-        return (0, 255, 0)  # Green
+        return (250, 165, 96)   # Light blue (BGR for #60a5fa)
     elif confidence >= config.MEDIUM_CONFIDENCE_THRESHOLD:
-        return (0, 165, 255)  # Orange
+        return (214, 143, 87)   # Mid blue
     else:
-        return (0, 0, 255)  # Red
+        return (170, 120, 80)   # Darker blue
 
 
 def create_confidence_bar(
@@ -235,8 +236,9 @@ def create_confidence_bar(
     Returns:
         Confidence bar image
     """
-    # Create white background
-    bar = np.ones((height, width, 3), dtype=np.uint8) * 255
+    # Create dark background
+    bar = np.zeros((height, width, 3), dtype=np.uint8)
+    bar[:] = (59, 41, 30)  # BGR for #1e293b
     
     # Calculate fill width
     fill_width = int(width * confidence)
@@ -248,7 +250,7 @@ def create_confidence_bar(
     cv2.rectangle(bar, (0, 0), (fill_width, height), color, -1)
     
     # Draw border
-    cv2.rectangle(bar, (0, 0), (width-1, height-1), (0, 0, 0), 2)
+    cv2.rectangle(bar, (0, 0), (width-1, height-1), (200, 200, 200), 2)
     
     # Add text
     text = f"{confidence:.1%}"
@@ -258,7 +260,7 @@ def create_confidence_bar(
         (width // 2 - 30, height // 2 + 5),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.6,
-        (0, 0, 0),
+        (255, 255, 255),
         2
     )
     
